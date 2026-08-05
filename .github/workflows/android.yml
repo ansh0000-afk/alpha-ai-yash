@@ -33,12 +33,13 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
+      - name: Create Capacitor Config File
+        run: |
+          echo '{"appId": "com.alphaai.app", "appName": "Alpha AI", "webDir": "dist"}' > capacitor.config.json
+
       - name: Install & Add Capacitor Android
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          if [ ! -f capacitor.config.json ] && [ ! -f capacitor.config.ts ]; then
-            npx cap init "Alpha AI" "com.alphaai.app" --web-dir "dist"
-          fi
           npx cap add android || true
           npx cap sync android
 
