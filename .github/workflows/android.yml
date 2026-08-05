@@ -27,21 +27,21 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Install Project Dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Build Web Application
+      - name: Build Web App
         run: npx vite build
 
-      - name: Create Capacitor Config File
+      - name: Setup Capacitor Configuration
         run: |
           echo '{"appId": "com.alphaai.app", "appName": "Alpha AI", "webDir": "dist"}' > capacitor.config.json
 
-      - name: Install & Setup Capacitor Android Platform
+      - name: Install Capacitor Packages & Add Android Platform
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
+          rm -rf android
           npx cap add android
-          npx cap copy android
           npx cap sync android
 
       - name: Build Android Debug APK
