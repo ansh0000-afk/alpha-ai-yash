@@ -31,13 +31,15 @@ jobs:
         run: npm install
 
       - name: Build Web App
-        run: npx vite build
+        run: |
+          npx vite build
+          mkdir -p dist
 
       - name: Setup Capacitor Configuration
         run: |
           echo '{"appId": "com.alphaai.app", "appName": "Alpha AI", "webDir": "dist"}' > capacitor.config.json
 
-      - name: Install Capacitor Packages & Add Android Platform
+      - name: Add and Sync Android Platform
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
           rm -rf android
