@@ -26,28 +26,29 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Ensure Package JSON Exists
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Force Create Minimum Node Project
         run: |
           if [ ! -f package.json ]; then
-            echo '{"name": "alpha-ai", "version": "1.0.0", "scripts": {"build": "vite build"}}' > package.json
+            npm init -y
           fi
+          npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      - name: Create Web Dist Directory
+      - name: Prepare Build Directory
         run: |
           mkdir -p dist
-          if [ -z "$(ls -A dist)" ]; then
-            echo '<!DOCTYPE html><html><head><title>Alpha AI</title></head><body><h1>Alpha AI App</h1></body></html>' > dist/index.html
+          if [ ! -f dist/index.html ]; then
+            find . -maxdepth 2 -name "index.html" -exec cp {} dist/ \; || true
+          fi
+          if [ ! -f dist/index.html ]; then
+            echo '<!DOCTYPE html><html><head><title>Alpha AI</title></head><body><div id="root"></div></body></html>' > dist/index.html
           fi
 
-      - name: Try Vite Build if available
-        run: |
-          npm install vite || true
-          npx vite build || true
-
-      - name: Setup Capacitor and Build Android
+      - name: Setup Capacitor and Generate Android
         run: |
           echo '{"appId": "com.alphaai.app", "appName": "Alpha AI", "webDir": "dist"}' > capacitor.config.json
-          npm install @capacitor/core @capacitor/cli @capacitor/android
           rm -rf android
           npx cap add android
           npx cap sync android
@@ -56,7 +57,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
